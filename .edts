@@ -1,0 +1,2 @@
+:name "webdemo-edts"
+:lib-dirs '("apps" "deps")
