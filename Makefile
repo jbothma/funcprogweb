@@ -7,7 +7,7 @@ compile: get-deps
 	./rebar compile
 
 rel: compile
-	mv rel/webdemo rel/webdemo_previous
+	rm -rf rel/webdemo
 	./rebar generate
 
 clean:
