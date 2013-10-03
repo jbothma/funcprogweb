@@ -12,7 +12,12 @@
 start(_StartType, _StartArgs) ->
     Routes = [{'_',
                [{"/[...]", cowboy_static,
-                 [{directory, {priv_dir, webdemo, [<<"docroot">>]}}
+                 [{directory, {priv_dir, webdemo, [<<"docroot">>]}},
+                  {mimetypes,
+                   [{<<".css">>, [<<"text/css">>]},
+                    {<<".js">>, [<<"application/javascript">>]},
+                    {<<".html">>, [<<"text/html">>]}
+                   ]}
                  ]}
                ]}],
     Dispatch = cowboy_router:compile(Routes),
