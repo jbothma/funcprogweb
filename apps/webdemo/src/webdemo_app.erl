@@ -16,31 +16,36 @@ start(_StartType, _StartArgs) ->
     {ok, Pid}.
 
 start_listeners() ->
-    StaticRoutes =
-        [{'_',
-          [{"/[...]", cowboy_static,
-            [{directory, {priv_dir, webdemo, [<<"docroot">>]}},
-             {mimetypes,
-              [{<<".css">>, [<<"text/css">>]},
-               {<<".js">>, [<<"application/javascript">>]},
-               {<<".html">>, [<<"text/html">>]}
-              ]}
-            ]}
-          ]}],
-    StaticDispatch = cowboy_router:compile(StaticRoutes),
-    %% Name, NbAcceptors, TransOpts, ProtoOpts
-    {ok, _Pid} = cowboy:start_http(my_http_listener, 100,
-                                  [{port, 8002}],
-                                  [{env, [{dispatch, StaticDispatch}]}]
-                                 ),
-    WSRoutes = [{'_', [{"/[...]", ws_handler, []}]}],
-    WSDispatch = cowboy_router:compile(WSRoutes),
-    %% Name, NbAcceptors, TransOpts, ProtoOpts
-    {ok, _Pid2} = cowboy:start_http(my_ws_listener, 100,
-                                  [{port, 8001}],
-                                  [{env, [{dispatch, WSDispatch}]}]
-                                 ),
+    start_http_listener(),
+    start_ws_listener(),
     ok.
+
+start_http_listener() ->
+    Host = '_',
+    DirOpt = {directory, {priv_dir, webdemo, [<<"docroot">>]}},
+    MIMEOpt = {mimetypes,
+               [{<<".css">>, [<<"text/css">>]},
+                {<<".js">>, [<<"application/javascript">>]},
+                {<<".html">>, [<<"text/html">>]}
+               ]},
+    Opts = [DirOpt, MIMEOpt],
+    Paths = [{"/[...]", cowboy_static, Opts}],
+    Routes = [{Host, Paths}],
+    Dispatch = cowboy_router:compile(Routes),
+    Ref = my_http_listener,
+    NbAcceptors = 100,
+    TransOpts = [{port, 8002}],
+    ProtoOpts = [{env, [{dispatch, Dispatch}]}],
+    {ok, _Pid} = cowboy:start_http(Ref, NbAcceptors, TransOpts, ProtoOpts).
+
+start_ws_listener() ->
+    Routes = [{'_', [{"/[...]", ws_handler, []}]}],
+    Dispatch = cowboy_router:compile(Routes),
+    Ref = my_ws_listener,
+    NbAcceptors = 100,
+    TransOpts = [{port, 8001}],
+    ProtoOpts = [{env, [{dispatch, Dispatch}]}],
+    {ok, _Pid2} = cowboy:start_http(Ref, NbAcceptors, TransOpts, ProtoOpts).
 
 stop(_State) ->
     ok.
