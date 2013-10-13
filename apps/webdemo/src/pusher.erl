@@ -44,8 +44,8 @@ register(Pid) ->
 deregister(Pid) ->
     gen_server:call(?SERVER, {deregister, Pid}).
 
-broadcast(Pid) ->
-    gen_server:cast(?SERVER, {broadcast, Pid}).
+broadcast(Msg) ->
+    gen_server:cast(?SERVER, {broadcast, Msg}).
 
 %%%===================================================================
 %%% gen_server callbacks
