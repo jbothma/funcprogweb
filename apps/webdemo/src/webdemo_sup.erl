@@ -1,3 +1,7 @@
+%%%-------------------------------------------------------------------
+%%% @doc Top supervisor for our demo app
+%%% @end
+%%%-------------------------------------------------------------------
 -module(webdemo_sup).
 
 -behaviour(supervisor).
@@ -23,5 +27,8 @@ start_link() ->
 %% ===================================================================
 
 init([]) ->
-    ChildSpecs = [?CHILD(pusher, worker)],
+    ChildSpecs = [?CHILD(pusher, worker),
+                  ?CHILD(worker_sup, supervisor)
+                 ],
+
     {ok, { {one_for_one, 5, 10}, ChildSpecs} }.
