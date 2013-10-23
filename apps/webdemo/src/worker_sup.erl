@@ -37,6 +37,7 @@ start_worker(Id) ->
 
 -spec stop_worker(any()) -> ok.
 stop_worker(Id) ->
+    ok = supervisor:terminate_child(?SERVER, Id),
     ok = supervisor:delete_child(?SERVER, Id).
 
 -spec list_workers() -> [{any(), pid()}].
