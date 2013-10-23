@@ -35,8 +35,11 @@ init([]) ->
     {ok, { {one_for_one, 5, 10}, ChildSpecs} }.
 
 webmachine_instance_childspec() ->
+    Dispatch = [{["worker"], wm_resource_worker, []}
+               ],
     Config = [{ip, "0.0.0.0"},
-              {port, 8003}
+              {port, 8003},
+              {dispatch, Dispatch}
               ],
     {wm_instance, {webmachine_mochiweb, start, [Config]},
      permanent, 5000, worker, dynamic}.
