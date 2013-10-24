@@ -1,15 +1,29 @@
 -module(wm_resource_worker).
 
 -export([init/1,
-         content_types_provided/2
+         allowed_methods/2,
+         delete_resource/2,
+         delete_completed/2
         ]).
 
 -include_lib("webmachine/include/webmachine.hrl").
 
-init(_FromDispatch) ->
+init(_Config) ->
     Context = [],
-    {ok, Context}.
+    Result = case webdemo_app:is_wm_tracing() of
+                 true -> {trace, "/tmp"};
+                 false -> ok
+             end,
+    {Result, Context}.
 
-content_types_provided(ReqData, Context) ->
-    Result = [],
+allowed_methods(ReqData, Context) ->
+    Result = ['DELETE'],
     {Result, ReqData, Context}.
+
+delete_resource(ReqData, Context) ->
+    Id = wrq:path_info(id, ReqData),
+    ok = workers:stop(Id),
+    {true, ReqData, Context}.
+
+delete_completed(ReqData, Context) ->
+    {true, ReqData, Context}.

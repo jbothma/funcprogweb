@@ -35,7 +35,8 @@ init([]) ->
     {ok, { {one_for_one, 5, 10}, ChildSpecs} }.
 
 webmachine_instance_childspec() ->
-    Dispatch = [{["worker"], wm_resource_worker, []}
+    Dispatch = [{["worker", id], wm_resource_worker, []},
+                {["worker"], wm_resource_worker_collection, []}
                ],
     Config = [{ip, "0.0.0.0"},
               {port, 8003},
