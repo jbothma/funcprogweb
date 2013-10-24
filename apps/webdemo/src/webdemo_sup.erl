@@ -35,8 +35,10 @@ init([]) ->
     {ok, { {one_for_one, 5, 10}, ChildSpecs} }.
 
 webmachine_instance_childspec() ->
+    SiteRoot = filename:join(code:priv_dir(webdemo), "docroot"),
     Dispatch = [{["worker", id], wm_resource_worker, []},
-                {["worker"], wm_resource_worker_collection, []}
+                {["worker"], wm_resource_worker_collection, []},
+                {['*'], wm_static, [{site_root, SiteRoot}]}
                ],
     Config = [{ip, "0.0.0.0"},
               {port, 8003},

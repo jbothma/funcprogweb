@@ -31,7 +31,7 @@ Recompile with
 
 ### Browsers
 
-    http://127.0.0.1:8002/index.html
+    http://127.0.0.1:8003/index.html
 
 ### WebSocket
 

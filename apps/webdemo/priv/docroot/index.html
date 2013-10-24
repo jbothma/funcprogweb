@@ -6,6 +6,7 @@
     <script type="text/javascript">
       
       var websocket;
+      var workers = {};
       $(document).ready(init);
       
       function init() {
@@ -18,12 +19,22 @@
               var supportedPar = '<p><span style="color: green;">'+
                                  'websockets are supported </span></p>';
               $('#status').append(supportedPar);
-              $('#server').val("ws://"+location.hostname+":8001");
+              $('#server').val(webSocketEndpoint());
               connect();
           };
               $("#connected").hide(); 	
-              $("#content").hide(); 	
+              $("#content").hide();
+              loadWorkers();
       };
+
+      function webSocketEndpoint() {
+           return "ws://"+location.hostname+":8001";
+      }
+
+      function restEndpoint() {
+           return "http://"+location.hostname+":"+location.port;
+      }
+
 
       function connect()
       {
@@ -33,7 +44,7 @@
           websocket.onopen = function(evt) { onOpen(evt) }; 
           websocket.onclose = function(evt) { onClose(evt) }; 
           websocket.onmessage = function(evt) { onMessage(evt) }; 
-          websocket.onerror = function(evt) { onError(evt) }; 
+          websocket.onerror = function(evt) { onError(evt) };
       };  
       
       function disconnect() {
@@ -80,6 +91,23 @@
       { 
           $('#output').html("");
       };
+
+      function loadWorkers() {
+          $.getJSON(restEndpoint()+"/worker", function( workerIds ) {
+            $.each(workerIds, function( Key, Id ) {
+               workers[Id] = true;
+            });
+            printWorkersInTextArea(workers);
+          })
+      }
+
+      function printWorkersInTextArea(workers) {
+        var string = "";
+        $.each(workers, function(workerId, whatever) {
+          string += workerId + "\n";
+        });
+        $('#worker_list').val(string);
+      }
     </script>
   </head>
 
@@ -102,7 +130,10 @@
 	  <button type="button" onclick="sendTxt();">send</button>
 	</p>
       </div>
-
+      <div id="workers">
+        <textarea id="worker_list" rows="10" cols="50">
+        </textarea>
+      </div>
       <div id="content">						
 	<button id="clear" onclick="clearScreen()" >Clear text</button>
 	<div id="output"></div>
