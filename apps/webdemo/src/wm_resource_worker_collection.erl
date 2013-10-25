@@ -25,7 +25,8 @@ content_types_provided(ReqData, Context) ->
     {Result, ReqData, Context}.
 
 content_types_accepted(ReqData, Context) ->
-    {[{"application/json", from_whatever}], ReqData, Context}.
+    ContentType = wrq:get_req_header("content-type", ReqData),
+    {[{ContentType, from_whatever}], ReqData, Context}.
 
 allowed_methods(ReqData, Context) ->
     Result = ['GET', 'POST'],
