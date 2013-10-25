@@ -27,7 +27,7 @@ start_link() ->
 
 -spec start_worker(any()) -> {ok, pid()}.
 start_worker(Id) ->
-    StartFunc = {worker, start_link, []},
+    StartFunc = {worker, start_link, [Id]},
     Restart = transient,         % restart only when stopped by error
     Shutdown = 5,                % milliseconds
     Type = worker,

@@ -17,10 +17,16 @@ websocket_init(_TransportName, Req, _Opts) ->
 websocket_handle(_Data, Req, State) ->
     {ok, Req, State}.
 
-websocket_info({stats, Msg}, Req, State) ->
-    {reply, {text, Msg}, Req, State};
+websocket_info({Namespace, {EventType, Data}}, Req, State) ->
+    JSONTerm = [{"namespace", Namespace},
+                {"event", [{"type", EventType},
+                           {"data", list_to_binary(Data)}
+                          ]}
+               ],
+    JSON = mochijson2:encode(JSONTerm),
+    {reply, {text, JSON}, Req, State};
 websocket_info(_Info, Req, State) ->
     {ok, Req, State}.
 
 websocket_terminate(_Reason, _Req, _State) ->
-    ok.
+    ok = pusher:deregister(self()).
