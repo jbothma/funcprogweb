@@ -70,8 +70,28 @@
       };  
 
       function onMessage(evt) { 
-          showScreen('<span style="color: blue;">RESPONSE: ' + evt.data+ '</span>'); 
+          showScreen('<span style="color: blue;">RESPONSE: ' +
+              evt.data+ '</span>');
+          jsonObj = jQuery.parseJSON(evt.data);
+          switch (jsonObj.namespace) {
+            case "workers":
+              onWorkerEvent(jsonObj.event);
+              break;
+          }
       };  
+
+      function onWorkerEvent(evt) {
+          switch (evt.type) {
+            case "start":
+              workers[evt.data] = true;
+              printWorkersInTextArea(workers);
+              break;
+            case "stop":
+              delete workers[evt.data];
+              printWorkersInTextArea(workers);
+              break;
+          }
+      }
 
       function showScreen(txt) { 
           $('#output').prepend('<p>' + txt + '</p>');
@@ -140,7 +160,7 @@
       <div id="content">						
 	<button id="clear" onclick="clearScreen()" >Clear text</button>
 	<button id="startBtn" onclick="startWorker()" >Start worker</button>
-	<button id="stopBtn" onclick="stopWorker(Object.keys(workers)[1])" >
+	<button id="stopBtn" onclick="stopWorker(Object.keys(workers)[0])" >
           Stop some worker
         </button>
 	<div id="output"></div>
