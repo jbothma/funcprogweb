@@ -92,6 +92,14 @@
          })
       };
 
+      function stopWorker(Id) {
+        Url = restEndpoint()+"/worker"+"/"+Id;
+         jQuery.ajax({
+              'type': 'DELETE',
+              'url': Url
+         })
+      }
+
       function loadWorkers() {
           $.getJSON(restEndpoint()+"/worker", function( workerIds ) {
             $.each(workerIds, function( Key, Id ) {
@@ -131,7 +139,10 @@
       </div>
       <div id="content">						
 	<button id="clear" onclick="clearScreen()" >Clear text</button>
-	<button id="clear" onclick="startWorker()" >Start worker</button>
+	<button id="startBtn" onclick="startWorker()" >Start worker</button>
+	<button id="stopBtn" onclick="stopWorker(Object.keys(workers)[1])" >
+          Stop some worker
+        </button>
 	<div id="output"></div>
       </div>
 
