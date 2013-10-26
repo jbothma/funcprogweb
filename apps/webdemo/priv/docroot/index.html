@@ -21,9 +21,9 @@
               $('#status').append(supportedPar);
               connect();
           };
-              $("#connected").hide(); 	
-              $("#content").hide();
-              loadWorkers();
+          $("#connected").hide();
+          $("#content").hide();
+          loadWorkers();
       };
 
       function webSocketEndpoint() {
@@ -86,6 +86,10 @@
               break;
             case "stop":
               delete workers[evt.data];
+              printWorkersInTextArea(workers);
+              break;
+            case "fetch":
+              workers = {};
               printWorkersInTextArea(workers);
               break;
           }

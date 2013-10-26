@@ -23,6 +23,7 @@
 %%%===================================================================
 
 start_link() ->
+    pusher:broadcast({workers, {fetch, ""}}),
     supervisor:start_link({local, ?SERVER}, ?MODULE, []).
 
 -spec start_worker(any()) -> {ok, pid()}.
