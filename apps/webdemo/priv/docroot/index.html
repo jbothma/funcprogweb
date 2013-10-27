@@ -42,7 +42,8 @@
 
           svg = d3.select("#workers_graph").append("svg")
               .attr("width", width)
-              .attr("height", height);
+              .attr("height", height)
+              .attr("style", "border: 1px solid black");
 
           svg.append("rect")
               .attr("width", width)
@@ -205,7 +206,7 @@
         node = node.data(nodes);
         node.enter().insert("circle", ".cursor")
             .attr("class", "node")
-            .attr("r", 5)
+            .attr("r", 7)
             .call(force.drag)
             .on("mousedown", function(node) {
                 stopWorker(node.id);
