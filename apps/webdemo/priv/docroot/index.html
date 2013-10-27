@@ -12,8 +12,6 @@
       var width, height, fill, force, svg, nodes, links, node, link,
           cursor;
       $(document).ready(init);
-
-      restart();
       
       function init() {
           if(!("WebSocket" in window)) {
@@ -37,33 +35,32 @@
           
           force = d3.layout.force()
               .size([width, height])
-              .nodes([{}]) // initialize with a single node
+              .nodes([]) // initialize with a single node
               .linkDistance(30)
               .charge(-60)
               .on("tick", tick);
-    
+
           svg = d3.select("#workers_graph").append("svg")
               .attr("width", width)
-              .attr("height", height)
-              .on("mousemove", mousemove)
-              .on("mousedown", mousedown)
-              .attr("style", "border: 1px solid black");
-          
+              .attr("height", height);
+
           svg.append("rect")
               .attr("width", width)
               .attr("height", height);
-          
+
           nodes = force.nodes();
           links = force.links();
           node = svg.selectAll(".node");
           link = svg.selectAll(".link");
-          
+
           cursor = svg.append("circle")
               .attr("r", 30)
               .attr("transform", "translate(-100,-100)")
               .attr("class", "cursor");
-    
+
           loadWorkers();
+
+          restart();
       };
 
       function webSocketEndpoint() {
@@ -83,8 +80,8 @@
           websocket.onclose = function(evt) { onClose(evt) }; 
           websocket.onmessage = function(evt) { onMessage(evt) }; 
           websocket.onerror = function(evt) { onError(evt) };
-      };  
-      
+      };
+
       function disconnect() {
           websocket.close();
       }; 
@@ -121,14 +118,25 @@
       function onWorkerEvent(evt) {
           switch (evt.type) {
             case "start":
-              workers[evt.data] = true;
+              var id = evt.data;
+              var node = {x: 0, y: 0, id: id};
+              nodes.push(node);
+              restart();
+              workers[id] = node;
               printWorkersInTextArea(workers);
               break;
             case "stop":
-              delete workers[evt.data];
+              var id = evt.data;
+              var nodex = workers[id];
+              var index = nodes.indexOf(nodex);
+              nodes.splice(index, 1);
+              restart();
+              delete workers[id];
               printWorkersInTextArea(workers);
               break;
             case "fetch":
+              nodes = [];
+              restart();
               workers = {};
               printWorkersInTextArea(workers);
               break;
@@ -160,8 +168,11 @@
       function loadWorkers() {
           $.getJSON(restEndpoint()+"/worker", function( workerIds ) {
             $.each(workerIds, function( Key, Id ) {
-               workers[Id] = true;
+              var node = {x: 0, y: 0, id: Id};
+              nodes.push(node);
+              workers[Id] = node;
             });
+            restart();
             printWorkersInTextArea(workers);
           })
       }
@@ -174,27 +185,7 @@
         $('#worker_list').val(string);
       }
 
-      function mousemove() {
-        cursor.attr("transform", "translate(" + d3.mouse(this) + ")");
-      }
-      
-      function mousedown() {
-        var point = d3.mouse(this),
-            node = {x: point[0], y: point[1]},
-            n = nodes.push(node);
-      
-        // add links to any nearby nodes
-        nodes.forEach(function(target) {
-          var x = target.x - node.x,
-              y = target.y - node.y;
-          if (Math.sqrt(x * x + y * y) < 30) {
-            links.push({source: node, target: target});
-          }
-        });
-      
-        restart();
-      }
-      
+
       function tick() {
         link.attr("x1", function(d) { return d.source.x; })
             .attr("y1", function(d) { return d.source.y; })
@@ -204,20 +195,23 @@
         node.attr("cx", function(d) { return d.x; })
             .attr("cy", function(d) { return d.y; });
       }
-      
+
       function restart() {
         link = link.data(links);
-      
+
         link.enter().insert("line", ".node")
             .attr("class", "link");
-      
+
         node = node.data(nodes);
-      
         node.enter().insert("circle", ".cursor")
             .attr("class", "node")
             .attr("r", 5)
-            .call(force.drag);
-      
+            .call(force.drag)
+            .on("mousedown", function(node) {
+                stopWorker(node.id);
+            });
+        node.exit().remove();
+
         force.start();
       }
 
