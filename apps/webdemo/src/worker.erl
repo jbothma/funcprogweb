@@ -5,7 +5,7 @@
         ]).
 
 start_link(Id) ->
-    Pid = spawn(?MODULE, sit_and_wait, [Id]),
+    Pid = spawn_link(?MODULE, sit_and_wait, [Id]),
     {ok, Pid}.
 
 sit_and_wait(Id) ->
