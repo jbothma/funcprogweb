@@ -36,7 +36,10 @@ stop(_State) ->
     ok.
 
 is_wm_tracing() ->
-    application:get_env(webdemo, wm_tracing, false).
+    case application:get_env(webdemo, wm_tracing) of
+        {ok, Val} -> Val;
+        undefined -> false
+    end.
 
 set_wm_tracing(IsTracing) ->
     ok = application:set_env(webdemo, wm_tracing, IsTracing).
